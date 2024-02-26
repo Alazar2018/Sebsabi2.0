@@ -1,11 +1,11 @@
 package et.com.gebeya.safaricom.coreservice.service;
 
 
+import et.com.gebeya.safaricom.coreservice.Exceptions.FormNotFoundException;
 import et.com.gebeya.safaricom.coreservice.dto.FormDto;
 import et.com.gebeya.safaricom.coreservice.dto.FormQuestionDto;
 import et.com.gebeya.safaricom.coreservice.dto.JobFormDisplaydto;
 import et.com.gebeya.safaricom.coreservice.model.*;
-import et.com.gebeya.safaricom.coreservice.model.enums.QuestionType;
 import et.com.gebeya.safaricom.coreservice.repository.FormRepository;
 import et.com.gebeya.safaricom.coreservice.dto.UserResponseDto;
 import jakarta.transaction.Transactional;
@@ -41,6 +41,7 @@ public class FormService {
         return new JobFormDisplaydto(formRepository.save(newForm));
     }
 
+
     public Form addQuestionToForm(Long formId, FormQuestionDto questionDTO) throws InvocationTargetException, IllegalAccessException {
         Form form = getFormById(formId);
 
@@ -56,14 +57,16 @@ public class FormService {
     }
 
 
-
     public Form getFormById(Long id) {
         return formRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Form not found with id: " + id));
     }
-    public Form getFormByClientId(Long client_id) {
-        return formRepository.findFormByClient_Id(client_id)
-                .orElseThrow(() -> new RuntimeException("Form not found with client id: " + client_id));
+    public Optional<Form> getFormByClientId(Long clientId) {
+        Optional<Form> form = formRepository.findFormByClient_Id(clientId);
+        if (form.isEmpty()) {
+            throw new FormNotFoundException("Form not found for client ID: " + clientId);
+        }
+        return form;
     }
 
     public List<Form> getFormsByStatus(Status status) {

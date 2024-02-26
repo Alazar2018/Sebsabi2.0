@@ -31,4 +31,27 @@ public class ProposalService {
         proposal.setProposalText(proposalDto.getProposalText());
         proposalRepository.save(proposal);
     }
+
+    public ProposalDto getProposalByFormId(Long formId) {
+        Proposal proposal = proposalRepository.findByFormId(formId);
+
+        // Ensure the proposal exists
+        if (proposal == null) {
+            // Handle the case where the proposal is not found, return null or throw an exception
+            return null;
+        }
+
+        // Retrieve the associated form and gig worker
+        Form form = proposal.getForm();
+        GigWorker gigWorker = proposal.getGigWorker();
+
+        // Map the entities to DTO
+        ProposalDto proposalDto = new ProposalDto();
+        proposalDto.setFormId(form.getId());
+        proposalDto.setGigWorkerId(gigWorker.getId());
+        proposalDto.setRatePerForm(proposal.getRatePerForm());
+        proposalDto.setProposalText(proposal.getProposalText());
+
+        return proposalDto;
+    }
 }

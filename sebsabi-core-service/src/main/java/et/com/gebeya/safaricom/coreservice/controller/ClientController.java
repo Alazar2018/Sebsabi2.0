@@ -2,17 +2,16 @@ package et.com.gebeya.safaricom.coreservice.controller;
 
 import et.com.gebeya.safaricom.coreservice.dto.ClientRequest;
 import et.com.gebeya.safaricom.coreservice.dto.ClientResponse;
-import et.com.gebeya.safaricom.coreservice.model.Client;
+import et.com.gebeya.safaricom.coreservice.dto.ProposalDto;
+import et.com.gebeya.safaricom.coreservice.model.Form;
 import et.com.gebeya.safaricom.coreservice.service.ClientService;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
-import io.github.resilience4j.retry.annotation.Retry;
-import io.github.resilience4j.timelimiter.annotation.TimeLimiter;
-import jakarta.annotation.security.RolesAllowed;
+import et.com.gebeya.safaricom.coreservice.service.FormService;
+import et.com.gebeya.safaricom.coreservice.service.ProposalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @RequiredArgsConstructor
@@ -20,6 +19,8 @@ import java.util.concurrent.CompletableFuture;
 @RequestMapping("/api/core/client")
 public class ClientController {
     private final ClientService clientService;
+    private final ProposalService proposalService;
+    private final FormService formService;
    @PostMapping("/signup")
    @ResponseStatus(HttpStatus.CREATED)
 //   @CircuitBreaker(name = "identity",fallbackMethod = "fallBackMethod")
@@ -38,14 +39,22 @@ public class ClientController {
 
     @GetMapping("/view")
     @ResponseStatus(HttpStatus.OK)
-    public List<ClientResponse> getAllClients(){
-
-        //System.out.println(authority);
-        return clientService.getAllClients();
+    public ClientResponse getClientById(@RequestParam Long userId){
+        return clientService.getClientById(userId);
     }
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public String getMessage(){
        return "see us";
     }
+    @GetMapping("/view/proposal/{formId}")
+    public ProposalDto getProposalByFormId(@PathVariable Long formId) {
+        return proposalService.getProposalByFormId(formId);
+    }
+    @GetMapping("/view/form")
+    @ResponseStatus(HttpStatus.OK)
+    public Optional<Form> getFormByClientId(@RequestParam Long client_id) {
+        return formService.getFormByClientId(client_id);
+    }
+
 }

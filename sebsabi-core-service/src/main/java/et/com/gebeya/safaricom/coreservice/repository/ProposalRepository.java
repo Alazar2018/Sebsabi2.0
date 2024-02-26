@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProposalRepository extends JpaRepository <Proposal, Long>{
+    Proposal findByFormId(Long formId);
 }

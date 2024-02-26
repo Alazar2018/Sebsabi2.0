@@ -1,8 +1,11 @@
 package et.com.gebeya.identityservice.controller;
 
+import et.com.gebeya.identityservice.dto.UserInformationRequest;
 import et.com.gebeya.identityservice.dto.requestDto.TokenDto;
 import et.com.gebeya.identityservice.dto.requestDto.UserInformation;
+import et.com.gebeya.identityservice.dto.requestDto.UserRequestDto;
 import et.com.gebeya.identityservice.dto.responseDto.AuthenticationResponse;
+import et.com.gebeya.identityservice.dto.responseDto.UserResponseDto;
 import et.com.gebeya.identityservice.dto.responseDto.ValidationResponseDto;
 import et.com.gebeya.identityservice.entity.UserCredentials;
 import et.com.gebeya.identityservice.service.AuthenticationService;
@@ -27,8 +30,8 @@ public class AuthenticationController {
         return ResponseEntity.ok(authenticationService.signIn(userInformation));
     }
     @PostMapping("/register")
-    public ResponseEntity<UserCredentials> signup(@RequestBody UserCredentials userCredentials) {
-        return ResponseEntity.ok(userCredentialsService.createUpdateUser(userCredentials));
+    public ResponseEntity<UserResponseDto> signup(@RequestBody UserRequestDto userRequestDto) {
+        return ResponseEntity.ok(authenticationService.signup(userRequestDto).getBody());
     }
     @PostMapping("/validate")
     public ResponseEntity<ValidationResponseDto> validate(@RequestBody TokenDto request)

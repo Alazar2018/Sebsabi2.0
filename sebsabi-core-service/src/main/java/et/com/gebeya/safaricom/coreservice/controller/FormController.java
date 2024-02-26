@@ -14,9 +14,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.AccessDeniedException;
-import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -53,7 +52,7 @@ public class FormController {
 
     @GetMapping("/{client_id}")
     @ResponseStatus(HttpStatus.OK)
-    public Form getFormByClientId(@PathVariable Long client_id) {
+    public Optional<Form> getFormByClientId(@PathVariable Long client_id) {
         return formService.getFormByClientId(client_id);
     }
 

@@ -1,3 +1,4 @@
+package et.com.gebeya.notificationservice;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;

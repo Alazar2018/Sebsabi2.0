@@ -45,8 +45,6 @@ services:
       POSTGRES_USER: alazar
       POSTGRES_PASSWORD: 1524
       PGDATA: /data/postgres
-    volumes:
-      - /data/postgres
     expose:
       - "5431"
     ports:

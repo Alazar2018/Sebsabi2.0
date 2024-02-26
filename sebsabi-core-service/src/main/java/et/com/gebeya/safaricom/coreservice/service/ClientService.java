@@ -3,8 +3,10 @@ package et.com.gebeya.safaricom.coreservice.service;
 import et.com.gebeya.safaricom.coreservice.dto.ClientRequest;
 import et.com.gebeya.safaricom.coreservice.dto.ClientResponse;
 import et.com.gebeya.safaricom.coreservice.dto.UserInformation;
+import et.com.gebeya.safaricom.coreservice.dto.UserRequestDto;
 import et.com.gebeya.safaricom.coreservice.event.ClientCreatedEvent;
 import et.com.gebeya.safaricom.coreservice.model.Client;
+import et.com.gebeya.safaricom.coreservice.model.Status;
 import et.com.gebeya.safaricom.coreservice.model.enums.Authority;
 import et.com.gebeya.safaricom.coreservice.repository.ClientRepository;
 import jakarta.transaction.Transactional;
@@ -31,31 +33,33 @@ public class ClientService {
     public String createClients(ClientRequest clientRequest){
         Client client=new Client(clientRequest);
         clientRepository.save(client);
+       // log.info(client.getId().toString());
         createClientsUserInformation(client);
         log.info("Client {} is Created and saved",client.getFirstName());
         clientRepository.save(client);
         String fullName = client.getFirstName() + " " + client.getLastName();
 
-        kafkaTemplate.send("notificationTopic",new ClientCreatedEvent(client.getEmail(),fullName));
+        //kafkaTemplate.send("notificationTopic",new ClientCreatedEvent(client.getEmail(),fullName));
         return "Client  Signed up Successfully ";
     }
 
-    private void createClientsUserInformation(Client client) {
-        UserInformation userInformation = new UserInformation();
-        userInformation.setUsername(client.getEmail());
-        userInformation.setPassword(client.getPassword());
-        userInformation.setAuthority(Authority.CLIENTS);
-        userInformation.setName(client.getFirstName().concat(client.getLastName()));
-        userInformation.setRoleId(client.getId());
-        userInformation.setIsActive(true);
 
+    private void createClientsUserInformation(Client client) {
+        UserRequestDto newUser=UserRequestDto.builder()
+                .userId(client.getId())
+                .userName(client.getEmail())
+                .name(client.getFirstName())
+                .password(client.getPassword())
+                .authority(Authority.CLIENT)
+                .isActive(true)
+                .build();
         String response = webClientBuilder.build().post()
                 .uri("http://identity-service/api/auth/register")
-                .bodyValue(userInformation)
+                .bodyValue(newUser)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
-        log.info("Response from identity micro service==> {}", response);
+       // log.info("Response from identity micro service==> {}", response);
     }
     public List<ClientResponse> getAllClients(){
         List<Client> clients= clientRepository.findAll();
@@ -70,7 +74,15 @@ public class ClientService {
         Optional<Client> clients= clientRepository.findByEmail(email);
         return clients;
     }
+    public ClientResponse getClientById(Long userId){
+        Optional<Client> clients= clientRepository.findById(userId);
+        if (clients.isPresent()){
+            Client client=clients.get();
+            return new ClientResponse(client);
+        }
 
+        throw new RuntimeException("Client not Found with this is");
+    }
     private ClientResponse mapToClientResponse(Client client) {
         return new ClientResponse(client);
     }

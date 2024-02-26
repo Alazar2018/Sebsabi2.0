@@ -3,7 +3,9 @@ package et.com.gebeya.identityservice.service;
 
 import et.com.gebeya.identityservice.dto.requestDto.TokenDto;
 import et.com.gebeya.identityservice.dto.requestDto.UserInformation;
+import et.com.gebeya.identityservice.dto.requestDto.UserRequestDto;
 import et.com.gebeya.identityservice.dto.responseDto.AuthenticationResponse;
+import et.com.gebeya.identityservice.dto.responseDto.UserResponseDto;
 import et.com.gebeya.identityservice.dto.responseDto.ValidationResponseDto;
 import et.com.gebeya.identityservice.entity.UserCredentials;
 import et.com.gebeya.identityservice.repository.UserCredentialsRepository;
@@ -30,6 +32,16 @@ public class AuthenticationService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user name or password"));
         String jwt = jwtService.generateToken(user);
         return AuthenticationResponse.builder().token(jwt).authority(user.getAuthority()).build();
+    }
+    public ResponseEntity<UserResponseDto> signup(UserRequestDto userRequestDto){
+        final String userName=userRequestDto.getUserName();
+            if(userRepository.findFirstByUserName(userName).isPresent()){
+                throw new RuntimeException("User already exists with this email");
+            }else{
+                UserResponseDto responseDto=userCredentialsService.signUp(userRequestDto);
+                new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+            }
+        return new ResponseEntity<>(HttpStatus.IM_USED);
     }
 
     public ResponseEntity<ValidationResponseDto> validate(TokenDto token)

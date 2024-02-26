@@ -1,12 +1,15 @@
 package et.com.gebeya.safaricom.coreservice.service;
 
 
+import et.com.gebeya.safaricom.coreservice.Exceptions.FormNotFoundException;
 import et.com.gebeya.safaricom.coreservice.dto.GigWorkerRequest;
 import et.com.gebeya.safaricom.coreservice.dto.GigwWorkerResponse;
 import et.com.gebeya.safaricom.coreservice.dto.UserInformation;
+import et.com.gebeya.safaricom.coreservice.dto.UserRequestDto;
 import et.com.gebeya.safaricom.coreservice.event.ClientCreatedEvent;
 import et.com.gebeya.safaricom.coreservice.model.Form;
 import et.com.gebeya.safaricom.coreservice.model.GigWorker;
+import et.com.gebeya.safaricom.coreservice.model.Status;
 import et.com.gebeya.safaricom.coreservice.model.enums.Authority;
 import et.com.gebeya.safaricom.coreservice.repository.FormRepository;
 import et.com.gebeya.safaricom.coreservice.repository.GigWorkerRepository;
@@ -37,21 +40,22 @@ public class GigWorkerService {
         log.info("Gig-Worker {} is Created and saved",gigWorkerRequest.getFirstName());
         String fullName = gigWorker.getFirstName() + " " + gigWorker.getLastName();
 
-        kafkaTemplate.send("notificationTopic",new ClientCreatedEvent(gigWorker.getEmail(),fullName));
+        //kafkaTemplate.send("notificationTopic",new ClientCreatedEvent(gigWorker.getEmail(),fullName));
         return "Gig worker Signed up Successfully ";
     }
     private void createGigWorkersUserInformation(GigWorker gigWorker) {
-        UserInformation userInformation = new UserInformation();
-        userInformation.setUsername(gigWorker.getEmail());
-        userInformation.setPassword(gigWorker.getPassword());
-        userInformation.setAuthority(Authority.GIGWORKERS);
-        userInformation.setName(gigWorker.getFirstName().concat(gigWorker.getLastName()));
-        userInformation.setRoleId(gigWorker.getId());
-        userInformation.setIsActive(true);
+        UserRequestDto newUser=UserRequestDto.builder()
+                .userId(gigWorker.getId())
+                .userName(gigWorker.getEmail())
+                .name(gigWorker.getFirstName())
+                .password(gigWorker.getPassword())
+                .authority(Authority.GIGWORKER)
+                .isActive(true)
+                .build();
 
         String response = webClientBuilder.build().post()
                 .uri("http://identity-service/api/auth/register")
-                .bodyValue(userInformation)
+                .bodyValue(newUser)
                 .retrieve()
                 .bodyToMono(String.class)
                 .block();
@@ -80,7 +84,7 @@ public class GigWorkerService {
 
         // Validate form ID
         Form form = formRepository.findById(formId)
-                .orElseThrow(() -> new et.com.gebeya.safaricom.sebsabi.Exceptions.FormNotFoundException("Form not found with ID: " + formId));
+                .orElseThrow(() -> new FormNotFoundException("Form not found with ID: " + formId));
 
         // Assign the job to the gig worker by updating the entity
         gigWorker.setAssignedForm(form);

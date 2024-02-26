@@ -1,19 +1,16 @@
-package et.com.gebeya.safaricom.coreservice.dto;
+package et.com.gebeya.identityservice.dto.requestDto;
 
-import et.com.gebeya.safaricom.coreservice.model.Status;
-import et.com.gebeya.safaricom.coreservice.model.enums.Authority;
-import jakarta.annotation.Nonnull;
+import et.com.gebeya.identityservice.entity.Authority;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-
-public class UserInformation {
+public class UserRequestDto {
     private String name;
     private String userName;
     private String password;

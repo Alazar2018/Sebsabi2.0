@@ -29,14 +29,13 @@ public class Form {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "form_id")
-    @JsonIgnore
+
     private List<FormQuestion> questions;
 
     @OneToMany(mappedBy = "form", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
     private List<UserResponse> userResponses;
-//    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL)
-//    private List<Proposal> proposals;
+    @OneToMany(mappedBy = "form", cascade = CascadeType.ALL)
+    private List<Proposal> proposals;
     @ManyToOne
     @JoinColumn(name = "gig_worker_id")
     private GigWorker assignedGigWorker;
