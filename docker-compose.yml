@@ -46,7 +46,7 @@ services:
       POSTGRES_PASSWORD: 1524
       PGDATA: /data/postgres
     volumes:
-      - ./postgres-core:/data/postgres
+      - /data/postgres
     expose:
       - "5431"
     ports:
